@@ -87,6 +87,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
+    // TODO move this modification to tailwind custom config or the component itself that passes it as a prop
     // className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
     className={cn("p-2 align-middle [&:has([role=checkbox])]:pr-0", className)}
     {...props}
