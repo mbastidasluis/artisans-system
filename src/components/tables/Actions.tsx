@@ -10,13 +10,17 @@ import {
 
 import { Button } from "../ui/button"
 
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>
+interface ActionOption {
+  label: string
+  callback: any
 }
 
-export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
+interface DataTableRowActionsProps<TData> {
+  row: Row<TData>
+  options: ActionOption[]
+}
+
+export function DataTableRowActions<TData>({ row, options }: DataTableRowActionsProps<TData>) {
 
   // TODO receive actions and callbacks as props
   return (
@@ -31,9 +35,11 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Detalles</DropdownMenuItem>
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Delete</DropdownMenuItem>
+        {options.map(({ label, callback }) => (
+          <DropdownMenuItem key={label} onClick={()=>callback(row.original)}>
+            {label}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )

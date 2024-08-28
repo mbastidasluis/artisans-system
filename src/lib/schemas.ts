@@ -28,33 +28,19 @@ export const USER_SIGNIN_SCHEMA = z.object({
         })
 })
 
-// class Artisan {
-//     uid?: string;
-//     firstName?: string;
-//     lastName?: string;
-//     email?: string;
-//     identityDocumentNumber?: string;
-//     taxDocumentNumber?: string;
-//     livingAddress?: string;
-//     workingAddress?: string;
-//     // dates
-//     createdAt?: Timestamp | FieldValue;
-//     createdAtAux?: DateTime | FieldValue;
-//     createdDate?: string;
-//     createdTime?: string;
 
 
+// TODO update schema with proper validations and messages
 export const ARTISAN_PROFILE_SCHEMA = z.object({
     uid: z.string().optional(),
-    firstName: z.string(),
-    lastName: z.string(),
-    email: z.string().email({ message: "Email invalido" }),
-    identityDocumentNumber: z.string(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email({ message: "Email invalido" }).optional(),
+    phoneNumber: z.string().optional(),
+    // dateOfBirth: z.date().optional(),
+    identityDocumentNumber: z.string().optional(),
     taxDocumentNumber: z.string().optional(),
-    livingAddress: z.string(),
-    workingAddress: z.string(),
-    createdAt: z.date().optional(),
-    createdAtAux: z.date().optional(),
-    createdDate: z.string().optional(),
-    createdTime: z.string().optional(),
+    livingAddress: z.string().optional(),
+    workingAddress: z.string().optional(),
+    createdAt: z.number().optional(),
 })

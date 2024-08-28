@@ -50,20 +50,20 @@ export function UserForm(
   }
 
   return (
-    <div className="mx-auto w-2/3 space-y-6 border-2 border-slate-800 rounded-md p-8">
-      <h3 className="text-center text-lg font-bold">
+    <div className="grid place-content-center mx-auto rounded-md p-8 h-[900px]">
+      <h3 className="text-center text-2xl font-bold mb-8 text-cyan-700">
         {type === "signup" ? "Registro" : "Inicio de Sesión"}
       </h3>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto w-2/3 space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] space-y-6">
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel>Correo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Correo" {...field} />
+                  <Input placeholder="Correo" {...field} className="border-cyan-500 ring-offset-cyan-500" />
                 </FormControl>
                 <FormDescription className="sr-only">
                   Nombre de usuario.
@@ -79,7 +79,7 @@ export function UserForm(
               <FormItem>
                 <FormLabel>Constraseña</FormLabel>
                 <FormControl>
-                  <Input placeholder="Constraseña" type="password" {...field} />
+                  <Input placeholder="Constraseña" type="password" {...field} className="border-cyan-500 ring-offset-cyan-500" />
                 </FormControl>
                 <FormDescription className="sr-only">
                   Contraseña.
@@ -88,7 +88,7 @@ export function UserForm(
               </FormItem>
             )}
           />
-          <Button type="submit">Aceptar</Button>
+          <Button type="submit" className="bg-cyan-700 hover:bg-cyan-600 text-white font-bold hover:drop-shadow-lg ">Aceptar</Button> 
         </form>
       </Form>
     </div>

@@ -1,89 +1,124 @@
-import { FieldValue, QueryDocumentSnapshot, serverTimestamp, SnapshotOptions, Timestamp } from 'firebase/firestore';
-import { DateTime } from 'luxon'
+import { FieldValue, FirestoreDataConverter, QueryDocumentSnapshot, serverTimestamp, SnapshotOptions, Timestamp, WithFieldValue } from 'firebase/firestore';
+
+export interface ArtisanType {
+    uid?: string,
+    firstName?: string,
+    lastName?: string,
+    email?: string,
+    phoneNumber?: string,
+    identityDocumentNumber?: string,
+    taxDocumentNumber?: string,
+    livingAddress?: string,
+    workingAddress?: string,
+    createdAt?: number,
+}
 
 export class Artisan {
-    uid?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    identityDocumentNumber?: string;
-    taxDocumentNumber?: string;
-    livingAddress?: string;
-    workingAddress?: string;
+    uid: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    identityDocumentNumber: string;
+    taxDocumentNumber: string;
+    livingAddress: string;
+    workingAddress: string;
     // dates
-    createdAt?: Timestamp | FieldValue;
-    createdAtAux?: DateTime | FieldValue;
-    createdDate?: string;
-    createdTime?: string;
+    createdAt: number;
+
+    // dateOfBirth?: DateTime | FieldValue;
+    // dateOfBirthAux?: DateTime | FieldValue;
+    // dateOfBirthDate: string;
 
     constructor({
         uid,
         firstName,
         lastName,
         email,
+        phoneNumber,
         identityDocumentNumber,
         taxDocumentNumber,
         livingAddress,
         workingAddress,
         createdAt,
-        createdAtAux,
-        createdDate,
-        createdTime,
-    }: Artisan) {
-        this.uid = uid;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.identityDocumentNumber = identityDocumentNumber;
-        this.taxDocumentNumber = taxDocumentNumber;
-        this.livingAddress = livingAddress;
-        this.workingAddress = workingAddress;
+    }: ArtisanType) {
+        this.uid = uid || '';
+        this.firstName = firstName || '';
+        this.lastName = lastName || '';
+        this.email = email || '';
+        this.phoneNumber = phoneNumber || '';
+        this.identityDocumentNumber = identityDocumentNumber || '';
+        this.taxDocumentNumber = taxDocumentNumber || '';
+        this.livingAddress = livingAddress || '';
+        this.workingAddress = workingAddress || '';
         // dates
-        this.createdAt = createdAt;
-        this.createdAtAux = createdAtAux;
-        this.createdDate = createdDate;
-        this.createdTime = createdTime;
-
-    }
-
-    static converter: any = {
-        toFirestore: (artisan: Artisan) => {
-            const toFirestoreData: Artisan = {
-                firstName: artisan.firstName,
-                lastName: artisan.lastName,
-                email: artisan.email,
-                identityDocumentNumber: artisan.identityDocumentNumber,
-                taxDocumentNumber: artisan.taxDocumentNumber,
-                livingAddress: artisan.livingAddress,
-                workingAddress: artisan.workingAddress,
-            };
-            if (!artisan.createdAt) {
-                toFirestoreData.createdAt = serverTimestamp();
-            }
-            return toFirestoreData;
-        },
-        fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions) => {
-            const artisan = snapshot.data(options)
-            const createdAtAux = DateTime.fromJSDate(artisan.createdAt.toDate(), { zone: 'America/Caracas', }).setLocale('es');
-            const finalArtisan = new Artisan({
-                uid: snapshot.id,
-                createdAtAux,
-                firstName: artisan.firstName,
-                lastName: artisan.lastName,
-                email: artisan.email,
-                identityDocumentNumber: artisan.identityDocumentNumber,
-                taxDocumentNumber: artisan.taxDocumentNumber,
-                livingAddress: artisan.livingAddress,
-                workingAddress: artisan.workingAddress,
-                createdAt: artisan.createdAt,
-                createdDate: createdAtAux.toLocaleString(DateTime.DATE_SHORT),
-                createdTime: createdAtAux.toLocaleString(DateTime.TIME_24_WITH_SECONDS),
-            });
-            return finalArtisan
-        }
+        this.createdAt = createdAt ?? 0;
     }
 
     toString() {
         return this.firstName + ', ' + this.lastName;
     }
 }
+
+interface ArtisanDbModel {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    identityDocumentNumber: string;
+    taxDocumentNumber: string;
+    livingAddress: string;
+    workingAddress: string;
+    createdAt: Timestamp | FieldValue;
+    // dateOfBirth: DateTime | FieldValue;
+    // dateOfBirthAux: DateTime | FieldValue;
+    // dateOfBirthDate: string;
+}
+
+export class ArtisanConverter implements FirestoreDataConverter<Artisan, ArtisanDbModel> {
+
+    toFirestore(artisan: WithFieldValue<Artisan>): WithFieldValue<ArtisanDbModel> {
+        const toFirestoreData = {
+            firstName: artisan.firstName,
+            lastName: artisan.lastName,
+            email: artisan.email,
+            phoneNumber: artisan.phoneNumber,
+            identityDocumentNumber: artisan.identityDocumentNumber,
+            taxDocumentNumber: artisan.taxDocumentNumber,
+            livingAddress: artisan.livingAddress,
+            workingAddress: artisan.workingAddress,
+            createdAt: this._createdAtDbValue(artisan.createdAt),
+        };
+        return toFirestoreData as ArtisanDbModel;
+    }
+
+    fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Artisan {
+        const artisan = snapshot.data(options)
+        const finalArtisan = new Artisan({
+            uid: snapshot.id,
+            firstName: artisan.firstName,
+            lastName: artisan.lastName,
+            email: artisan.email,
+            phoneNumber: artisan.phoneNumber,
+            identityDocumentNumber: artisan.identityDocumentNumber,
+            taxDocumentNumber: artisan.taxDocumentNumber,
+            livingAddress: artisan.livingAddress,
+            workingAddress: artisan.workingAddress,
+            createdAt: artisan.createdAt.toMillis(),
+            // dateOfBirthAux,
+            // dateOfBirth: artisan.dateOfBirth,
+            // dateOfBirthDate: artisan.dateOfBirthAux.toLocaleString(DateTime.DATE_SHORT),
+        });
+        return finalArtisan
+    }
+
+    _createdAtDbValue(createdAt: undefined | number | FieldValue): Timestamp | FieldValue {
+        if (typeof createdAt === 'number') {
+            return createdAt > 0 ? Timestamp.fromMillis(createdAt) : serverTimestamp();
+        } else if (createdAt) {
+            return createdAt;
+        }
+        return serverTimestamp();
+    }
+}
+

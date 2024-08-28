@@ -1,8 +1,7 @@
 import { Artisan } from "@/models/Artisan"
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, PaginationState, useReactTable } from "@tanstack/react-table"
 import { useState } from "react"
-import Filter from "./Filter"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
 export default function ArtisansTable({
   data,
@@ -13,7 +12,7 @@ export default function ArtisansTable({
 }) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 15,
   })
 
   const table = useReactTable({
@@ -31,10 +30,10 @@ export default function ArtisansTable({
     },
     // autoResetPageIndex: false, // turn off page index reset when sorting or filtering
   })
-
+  // TODO implement utility bar with sorting, filtering, etc
   return (
-    <div className="p-2 grid grid-cols-1 grid-rows-2 justify-center justify-items-center">
-      <Table className="mb-4 overflow-hidden">
+    <div className="p-2 grid grid-cols-1 justify-center justify-items-center">
+      <Table className="mb-2 overflow-hidden">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -108,7 +107,7 @@ export default function ArtisansTable({
             {table.getPageCount().toLocaleString()}
           </strong>
         </span>
-        <span className="flex items-center gap-1">
+        {/* <span className="flex items-center gap-1">
           | Go to page:
           <input
             type="number"
@@ -121,8 +120,9 @@ export default function ArtisansTable({
             }}
             className="border p-1 rounded w-16"
           />
-        </span>
-        <select
+        </span> */}
+        // TODO separeate page size view and logic
+        <select className="sr-only"
           value={table.getState().pagination.pageSize}
           onChange={e => {
             table.setPageSize(Number(e.target.value))
